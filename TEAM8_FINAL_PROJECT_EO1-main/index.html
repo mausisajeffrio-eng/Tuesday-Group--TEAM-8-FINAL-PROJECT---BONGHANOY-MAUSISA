@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
+  <link rel="stylesheet" href="src/style.css" />
+  <title>Sipa - Filipino Game</title>
+</head>
+
+<body>
+  <!-- Start Menu -->
+  <div id="startMenu">
+    <h1 class="game-title">🏐 SIPA 🏐</h1>
+    <p class="game-subtitle">Filipino Traditional Sipa Game</p>
+
+    <div class="mode-selection">
+      <button class="mode-btn" id="singlePlayerBtn">Single Player</button>
+      <button class="mode-btn" id="multiplayerBtn">Multiplayer</button>
+    </div>
+
+    <div class="player-setup" id="playerSetup">
+      <div class="player-input">
+        <label>Player 1:</label>
+        <input type="text" id="player1Name" placeholder="Enter name" maxlength="15" />
+      </div>
+      <div class="player-input">
+        <label>Player 2:</label>
+        <input type="text" id="player2Name" placeholder="Enter name" maxlength="15" />
+      </div>
+    </div>
+
+    <button class="start-btn" id="startGameBtn" style="display: none;">START GAME</button>
+
+    <button class="mode-btn" id="viewLeaderboardBtn"
+      style="margin-top: 20px; font-size: 20px; padding: 15px 40px; background: linear-gradient(135deg, #FFD700, #FFA500);">🏆
+      Leaderboard</button>
+    <button class="mode-btn" id="shopBtn"
+      style="margin-top: 10px; font-size: 20px; padding: 15px 40px; background: linear-gradient(135deg, #a8ff78, #78ffd6); color: #006400;">🛒
+      Shop</button>
+
+    <div id="coinDisplay"
+      style="position: absolute; top: 20px; right: 20px; font-size: 24px; color: #FFD700; font-weight: bold; background: rgba(0,0,0,0.5); padding: 10px 20px; border-radius: 20px; border: 2px solid #FFD700;">
+      🪙 0
+    </div>
+
+    <div id="menuLeaderboardModal" class="hidden">
+      <h2>🏆 LEADERBOARD 🏆</h2>
+      <div class="leaderboard-tabs">
+        <button class="tab-btn active" id="tabSingle">Single Player</button>
+        <button class="tab-btn" id="tabMulti">Multiplayer</button>
+      </div>
+      <div id="menuLeaderboardContent">
+        <!-- Scores go here -->
+      </div>
+      <button class="close-btn" id="closeLeaderboardBtn">Close</button>
+    </div>
+
+    <!-- Shop Modal -->
+    <div id="shopModal" class="hidden">
+      <h2>🛒 SHOP 🛒</h2>
+      <div class="coin-balance" id="shopCoinDisplay">🪙 0</div>
+      <div class="leaderboard-tabs">
+        <button class="tab-btn active" id="tabShopSipa">Sipa Skins</button>
+        <button class="tab-btn" id="tabShopPlayer">Player Skins</button>
+        <button class="tab-btn" id="tabShopMusic">Music Tracks</button>
+        <button class="tab-btn" id="tabShopPlaces">Places</button>
+      </div>
+      <div id="shopContent" class="shop-grid">
+        <!-- Items go here -->
+      </div>
+      <button class="close-btn" id="closeShopBtn">Close</button>
+    </div>
+  </div>
+
+  <!-- Game UI -->
+  <div id="ui">
+    <div id="currentPlayer"></div>
+    <div id="score">Score: 0</div>
+    <div id="lives">❤️ ❤️ ❤️</div>
+    <div id="comboDisplay">🔥 COMBO x2 🔥</div>
+    <div id="timingFeedback"></div>
+    <div id="gameOver">
+      Game Over!<br />
+      <button id="restartBtn">Play Again</button>
+    </div>
+  </div>
+
+  <!-- Rhythm Game Lanes -->
+  <div id="rhythmGame">
+    <div class="note-lanes">
+      <div class="lane" data-key="a">
+        <div class="lane-key">A</div>
+      </div>
+      <div class="lane" data-key="s">
+        <div class="lane-key">S</div>
+      </div>
+      <div class="lane" data-key="d">
+        <div class="lane-key">D</div>
+      </div>
+      <div class="lane" data-key="f">
+        <div class="lane-key">F</div>
+      </div>
+    </div>
+    <div class="hit-zone"></div>
+  </div>
+
+  <!-- Leaderboard -->
+  <div id="leaderboard">
+    <h3>🏆 LEADERBOARD 🏆</h3>
+    <div class="leaderboard-content" id="leaderboardContent">
+      <!-- Dynamic content -->
+    </div>
+  </div>
+
+  <a-scene vr-mode-ui="enabled: false" fog="type: linear; color: #240b36; near: 5; far: 40">
+    <!-- Camera rig with look controls only (no WASD movement) -->
+    <a-entity id="rig" position="0 0 3">
+      <a-entity id="camera" camera position="0 1.6 0" look-controls>
+        <a-cursor color="#FFD700" opacity="1" scale="2 2 2" raycaster="objects: .kickable; far: 20; showLine: true"
+          fuse="false"></a-cursor>
+      </a-entity>
+    </a-entity>
+
+    <!-- Lighting -->
+    <a-light type="ambient" color="#BBB"></a-light>
+    <a-light type="directional" position="2 4 2" intensity="0.8"></a-light>
+    <a-light type="point" position="-2 3 -2" intensity="0.5" color="#FFA500"></a-light>
+
+    <!-- Fog for atmosphere -->
+    <a-entity environment="preset: none"></a-entity>
+
+    <!-- Sky -->
+    <a-sky id="sky" color="#240b36"></a-sky>
+
+    <!-- Retro Sun -->
+    <a-sphere id="sun" position="0 5 -20" radius="4" color="#ff7b00"
+      material="emissive: #ff7b00; emissiveIntensity: 0.8"></a-sphere>
+
+    <!-- Stars -->
+    <a-sphere position="-10 8 -15" radius="0.1" color="white"></a-sphere>
+    <a-sphere position="12 10 -18" radius="0.1" color="white"></a-sphere>
+    <a-sphere position="-5 12 -12" radius="0.1" color="white"></a-sphere>
+
+    <!-- Ground Grid (Vaporwave style) -->
+    <a-plane id="floor" position="0 0 0" rotation="-90 0 0" width="100" height="100" color="#120520"></a-plane>
+    <a-plane id="grid" position="0 0.05 0" rotation="-90 0 0" width="100" height="100" color="#d900ff" wireframe="true"
+      segments-width="50" segments-height="50" opacity="0.3"></a-plane>
+
+    <!-- Decorative floating shapes -->
+    <a-box id="floatBox1" position="-8 2 -10" color="#2c3e50"
+      animation="property: rotation; to: 0 360 0; loop: true; dur: 10000"></a-box>
+    <a-box id="floatBox2" position="8 3 -12" color="#2c3e50"
+      animation="property: rotation; to: 360 360 0; loop: true; dur: 8000"></a-box>
+
+    <!-- Floating Targets -->
+    <a-entity id="targetContainer">
+      <!-- Targets will be spawned dynamically -->
+    </a-entity>
+
+    <!-- Particle container -->
+    <a-entity id="particleContainer"></a-entity>
+
+    <!-- Player Character -->
+    <a-entity id="player" position="0 0 -2">
+      <!-- Body -->
+      <a-cylinder id="playerBody" radius="0.3" height="1.2" color="#4a90e2" position="0 2.2 0"></a-cylinder>
+
+      <!-- Head -->
+      <a-sphere id="playerHead" radius="0.25" color="#ffdbac" position="0 3.1 0"></a-sphere>
+
+      <!-- Left Arm -->
+      <a-cylinder id="playerLeftArm" radius="0.1" height="0.8" color="#4a90e2" position="-0.4 2.3 0"
+        rotation="0 0 20"></a-cylinder>
+
+      <!-- Right Arm -->
+      <a-cylinder id="playerRightArm" radius="0.1" height="0.8" color="#4a90e2" position="0.4 2.3 0"
+        rotation="0 0 -20"></a-cylinder>
+
+      <!-- Left Leg -->
+      <a-cylinder id="playerLeftLeg" radius="0.12" height="1" color="#2c3e50" position="-0.15 1.1 0"></a-cylinder>
+
+      <!-- Right Leg (kicking leg) -->
+      <a-cylinder id="playerRightLeg" radius="0.12" height="1" color="#2c3e50" position="0.15 1.1 0"></a-cylinder>
+
+      <!-- Left Foot -->
+      <a-box id="playerLeftFoot" width="0.2" height="0.1" depth="0.3" color="#34495e" position="-0.15 0.6 0.1"></a-box>
+
+      <!-- Right Foot (kicking foot) -->
+      <a-box id="playerRightFoot" width="0.2" height="0.1" depth="0.3" color="#34495e" position="0.15 0.6 0.1"></a-box>
+    </a-entity>
+
+    <!-- Sipa (shuttlecock) - positioned near the feet -->
+    <a-entity id="sipa" class="kickable" position="0 3 -2" scale="3 3 3">
+      <!-- Invisible clickable box around the Sipa -->
+      <a-box class="kickable" width="0.5" height="0.8" depth="0.5" opacity="0" position="0 0.2 0"></a-box>
+
+      <a-cylinder class="kickable" radius="0.08" height="0.02" color="#C0C0C0" shadow="cast: true"></a-cylinder>
+      <a-cylinder class="kickable" position="0 0.02 0" radius="0.06" height="0.02" color="#DAA520"></a-cylinder>
+      <a-cone class="kickable" position="0 0.15 0" radius-bottom="0.08" radius-top="0.01" height="0.3" color="#FF1744"
+        opacity="0.8" shadow="cast: true"></a-cone>
+      <a-cone class="kickable" position="0 0.15 0" radius-bottom="0.08" radius-top="0.01" height="0.3" color="#FFFFFF"
+        opacity="0.6" rotation="0 60 0"></a-cone>
+      <a-cone class="kickable" position="0 0.15 0" radius-bottom="0.08" radius-top="0.01" height="0.3" color="#0038A8"
+        opacity="0.6" rotation="0 120 0"></a-cone>
+      <a-sphere class="kickable" position="0 0 0" radius="0.05" color="#FFD700"
+        material="emissive: #FFD700; emissiveIntensity: 0.5"></a-sphere>
+      <a-animation attribute="rotation" dur="2000" to="0 360 0" easing="linear" repeat="indefinite"></a-animation>
+    </a-entity>
+
+    <!-- Decorative boxes -->
+    <a-box position="-3 0.5 -5" width="1" height="1" depth="1" color="#8B4513" shadow="cast: true"></a-box>
+    <a-box position="3 0.5 -5" width="1" height="1" depth="1" color="#8B4513" shadow="cast: true"></a-box>
+
+    <!-- Clouds -->
+    <a-entity position="0 8 -10">
+      <a-sphere position="0 0 0" radius="1" color="#FFFFFF" opacity="0.7"></a-sphere>
+      <a-sphere position="1 0.2 0" radius="0.8" color="#FFFFFF" opacity="0.7"></a-sphere>
+      <a-sphere position="-0.8 0.1 0" radius="0.7" color="#FFFFFF" opacity="0.7"></a-sphere>
+    </a-entity>
+
+    <a-entity position="4 7 -8">
+      <a-sphere position="0 0 0" radius="0.9" color="#FFFFFF" opacity="0.6"></a-sphere>
+      <a-sphere position="0.8 0.1 0" radius="0.7" color="#FFFFFF" opacity="0.6"></a-sphere>
+    </a-entity>
+  </a-scene>
+
+  <script src="src/audio.js"></script>
+  <script src="src/script.js"></script>
+</body>
+
+</html>
