@@ -31,7 +31,7 @@ let isHoldingSpace = false;
 let allTimeScores = JSON.parse(localStorage.getItem("sipaRhythmScores")) || [];
 
 // Shop Data
-let coins = parseInt(localStorage.getItem("sipaCoins")) || 10000;
+let coins = parseInt(localStorage.getItem("sipaCoins")) || 0;
 let inventory = JSON.parse(localStorage.getItem("sipaInventory")) || { sipa: ["sipa_classic"], player: ["player_default"], music: ["music_synthwave"], place: ["place_rooftop"] };
 let equipped = JSON.parse(localStorage.getItem("sipaEquipped")) || { sipa: "sipa_classic", player: "player_default", music: "music_synthwave", place: "place_rooftop" };
 
@@ -53,8 +53,7 @@ const shopItems = [
   // MUSIC TRACKS
   { id: "music_synthwave", type: "music", name: "Synthwave Beat", cost: 0, file: null },
   { id: "music_rock", type: "music", name: "NEFFEX - Grateful", cost: 0, file: "grateful.mp3" },
-  { id: "music_jazz", type: "music", name: "Jazz Fusion", cost: 1000, file: "jazz.mp3" },
-  { id: "music_classical", type: "music", name: "Classical Rush", cost: 1500, file: "classical.mp3" },
+  { id: "music_jazz", type: "music", name: "Jazz Fusion", cost: 1000, file: "night_time.mp3" },
   { id: "music_electronic", type: "music", name: "Electronic Drop", cost: 2000, file: "electronic.mp3" },
 
   // PLACES/ENVIRONMENTS
